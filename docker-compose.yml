@@ -1,0 +1,7 @@
+version: '3' 
+
+services: 
+  worker: 
+   build: .
+   container_name: cocoliso-container
+   image: deno-image

@@ -48,7 +48,6 @@ async function getAchievementPercentage(game: GameInfo): Promise<number> {
   })
   const res = await fetch('https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v0001/?' + params.toString());
   const data: AchievementAPI = await res.json();
-  console.log("DATA:", data);
   const achievements = data?.playerstats?.achievements ?? [];
   const completedTotal = achievements?.filter(achievement => achievement.achieved === 1).length;
   if (achievements.length === 0) return 0;
@@ -226,7 +225,6 @@ async function createDatabase() {
     }],
     properties: props,
   })
-
 }
 
 async function getSteamAccountData() {
