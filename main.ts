@@ -168,8 +168,16 @@ function getDatabaseProperties(): Record<string, any> {
         multi_select: {}
       },
       "Rating": {
-        type: "number",
-        number: {}
+        type: "select",
+        select: {
+          options: [
+            { name: "⭐"},
+            { name: "⭐⭐"},
+            { name: "⭐⭐⭐"},
+            { name: "⭐⭐⭐⭐"},
+            { name: "⭐⭐⭐⭐⭐"},
+          ]
+        }
       },
       "Date Started": {
         type: "date",
@@ -235,6 +243,7 @@ async function getSteamAccountData() {
     steamid: accountId,
     key: apiKey,
     include_appinfo: "1",
+    include_played_free_games: "1"
   })
   const res = await fetch('http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001?' + params.toString());
   const data = await res.json() as unknown as { response: { games: GameInfo[] } };
