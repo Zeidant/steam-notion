@@ -1,0 +1,6 @@
+.vscode/
+.env.example
+Dockerfile
+docker-compose.yml
+.git/
+docker-compose-casaOs.yaml

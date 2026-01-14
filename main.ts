@@ -102,7 +102,7 @@ async function getNewProperties(game: GameInfo, pageId?: string): Promise<Record
 
 async function updateEntries(games: GameInfo[]) {
   const db = await notion.search({
-    query: "Steam Videojuegos",
+    query: "Steam Games Achievements",
     filter: {
       property: "object",
       value: "database"
@@ -113,8 +113,10 @@ async function updateEntries(games: GameInfo[]) {
     logger("Database ID not found");
     return;
   }
+
+  let count = 0;
   for (const game of games) {
-    logger('Processing Game: ', game.name);
+    // logger('Processing Game: ', game.name);
     const pageId = await getPage(dbId, String(game.appid));
     const props = await getNewProperties(game, pageId ?? undefined)
     if (pageId) {
@@ -139,8 +141,9 @@ async function updateEntries(games: GameInfo[]) {
 
 
     }
-
+    count++;
   }
+  logger(`Success: ${count} games have been synchronized with Notion.`)
 
 }
 
@@ -205,21 +208,22 @@ function getDatabaseProperties(): Record<string, any> {
 
 async function createDatabase() {
   const db = await notion.search({
-    query: "Steam Videojuegos",
+    query: "Steam Games Achievements",
     filter: {
       property: "object",
       value: "database"
     }
   })
-  const props = getDatabaseProperties();
   if (db?.results?.length !== 0) {
-    logger("Database was already created. Updating schema...")
-    await notion.databases.update({
-      database_id: db.results?.[0].id,
-      properties: props,
-    })
+    logger("Database was already created.")
+    // await notion.databases.update({
+    //   database_id: db.results?.[0].id,
+    //   properties: props,
+    // })
     return;
   }
+
+  const props = getDatabaseProperties();
   await notion.databases.create({
     parent: {
       type: "page_id",
@@ -228,7 +232,7 @@ async function createDatabase() {
     title: [{
       type: "text",
       text: {
-        content: "Steam Videojuegos"
+        content: "Steam Games Achievements"
       }
     }],
     properties: props,
@@ -251,10 +255,19 @@ async function getSteamAccountData() {
 }
 
 if (import.meta.main) {
-  const games = await getSteamAccountData();
-  logger('Steam Games fetched. Attempting Database build...')
-  await createDatabase();
-  await sleep(5000);
-  await updateEntries(games);
+  while (true) {
+    try {
+      const games = await getSteamAccountData();
+      logger('Steam Games fetched. Attempting Database build...');
+      await createDatabase();
+      await sleep(5000);
+      await updateEntries(games);
+      logger('Sync finished successfully.');
+    } catch (err) {
+      logger('Error during sync:', err);
+    }
 
+    logger('Waiting 24 hours before next execution...');
+    await sleep(24 * 60 * 60 * 1000); // 24 horas
+  }
 }
