@@ -267,7 +267,7 @@ if (import.meta.main) {
       logger('Error during sync:', err);
     }
 
-    logger('Waiting 24 hours before next execution...');
-    await sleep(24 * 60 * 60 * 1000); // 24 horas
+    logger('Waiting 12 hours before next execution...');
+    await sleep(12 * 60 * 60 * 1000);
   }
 }
